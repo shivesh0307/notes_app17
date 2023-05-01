@@ -2,9 +2,15 @@ import React from "react"
 
 export default function Sidebar(props) {
     console.log(props.notes);
-    const noteElements = props.notes.map((note, index) =>  (
-       
-       <div key={note.id}>
+   
+    const noteElements = props.notes.map((note, index) =>  {
+       // console.log(JSON.stringify(note.body));
+        let i=note.body.indexOf("\n");
+        //console.log("i  " + i);
+    let firstIndex=(i!=-1)?(i): note.body.length;
+    let firstLine= note.body.slice(0,firstIndex);
+    //let firstLine=note.body.split("\n");
+     return <div key={note.id}>
             <div
                 
                 className={`title ${
@@ -12,10 +18,10 @@ export default function Sidebar(props) {
                 }`}
                 onClick={() => props.setCurrentNoteId(note.id)}
             >
-                <h4 className="text-snippet">Note {index + 1}</h4>
+                <h4 className="text-snippet">{firstLine}</h4>
             </div>
         </div>
-    ))
+})
 
     return (
         <section className="pane sidebar">

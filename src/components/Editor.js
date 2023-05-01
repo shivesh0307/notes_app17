@@ -12,7 +12,7 @@ export default function Editor({ currentNote, updateNote }) {
         strikethrough: true,
         tasklists: true,
     })  
-    console.log(selectedTab)
+    //console.log(selectedTab)
     return (
         <section className="pane editor">
             <ReactMde
