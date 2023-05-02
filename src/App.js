@@ -4,7 +4,8 @@ import Editor from "./components/Editor"
 import { data } from "./data.js"
 import Split from "react-split"
 import {nanoid} from "nanoid"
-
+import { onSnapshot, addDoc } from "firebase/firestore"
+import { notesCollection } from "./firebase"
 /**
  * Challenge: Spend 10-20+ minutes reading through the code
  * and trying to understand how it's currently working. Spend
@@ -14,26 +15,36 @@ import {nanoid} from "nanoid"
  */
 
 export default function App() {
-    const [notes, setNotes] = React.useState(()=>JSON.parse(localStorage.getItem("notes")) || [])
+    const [notes, setNotes] = React.useState([])
     const [currentNoteId, setCurrentNoteId] = React.useState(
         ( notes[0]?.id) || ""
     )
     const currentNote = 
         notes.find(note => note.id === currentNoteId) 
-        || notes[0]
+        || notes[0];
 
+    React.useEffect(() => {
+            const unsubscribe = onSnapshot(notesCollection, function(snapshot) {
+                // Sync up our local notes array with the snapshot data
+                console.log("THINGS ARE CHANGING!")
+                const notesArr = snapshot.docs.map(doc => ({
+                    ...doc.data(),
+                    id: doc.id
+                }))
+                setNotes(notesArr)
+            })
+            return unsubscribe
+        }, [])    //Will run first time to fetchthe data from database and initialize the notes array
     React.useEffect(() => {
         localStorage.setItem("notes", JSON.stringify(notes))
     }, [notes])
 
-    function createNewNote() {
+    async function createNewNote() {
         const newNote = {
-            id: nanoid(),
             body: "# Type your markdown note's title here"
         }
-        setNotes(prevNotes => [newNote, ...prevNotes])
-        setCurrentNoteId(newNote.id)
-        console.log("createNewNote called")
+        const newNoteRef = await addDoc(notesCollection, newNote) // the onsnapshot will automatically update the state of note
+        setCurrentNoteId(newNoteRef.id)
     }
     
     function updateNote(text) {
