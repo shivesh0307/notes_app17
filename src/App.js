@@ -23,6 +23,7 @@ export default function App() {
         || notes[0];
       //  console.log("re-rendered");
    // console.log(currentNoteId)
+   const sortedNotes = notes.sort((a, b) => b.updatedAt - a.updatedAt)
     React.useEffect(() => {
             const unsubscribe = onSnapshot(notesCollection, function(snapshot) {
                 // Sync up our local notes array with the snapshot data
@@ -31,12 +32,9 @@ export default function App() {
                     ...doc.data(),
                     id: doc.id
                 }))
-                const sortedNotes=notesArr.sort(function(a,b)
-                {
-                    return b.updatedAt - a.updatedAt;
-                })
-                setNotes(sortedNotes);
-                console.log(sortedNotes);   
+                
+                setNotes(notesArr);
+                //console.log(sortedNotes);   
                 //setNotes(notesArr)
             })
             return unsubscribe
@@ -88,7 +86,7 @@ export default function App() {
                 className="split"
             >
                 <Sidebar
-                    notes={notes}
+                    notes={sortedNotes}
                    // sortedNotes={sortedNotes}
                     currentNote={currentNote}
                     setCurrentNoteId={setCurrentNoteId}
