@@ -21,16 +21,23 @@ export default function App() {
     const currentNote = 
         notes.find(note => note.id === currentNoteId) 
         || notes[0];
+      //  console.log("re-rendered");
    // console.log(currentNoteId)
     React.useEffect(() => {
             const unsubscribe = onSnapshot(notesCollection, function(snapshot) {
                 // Sync up our local notes array with the snapshot data
-                console.log("THINGS ARE CHANGING!")
+               // console.log("THINGS ARE CHANGING!")
                 const notesArr = snapshot.docs.map(doc => ({
                     ...doc.data(),
                     id: doc.id
                 }))
-                setNotes(notesArr)
+                const sortedNotes=notesArr.sort(function(a,b)
+                {
+                    return b.updatedAt - a.updatedAt;
+                })
+                setNotes(sortedNotes);
+                console.log(sortedNotes);   
+                //setNotes(notesArr)
             })
             return unsubscribe
         }, [])    //Will run first time to fetchthe data from database and initialize the notes array
@@ -39,9 +46,13 @@ export default function App() {
                 setCurrentNoteId(notes[0]?.id)
             }
         }, [notes])
+
+     
     async function createNewNote() {
         const newNote = {
-            body: "# Type your markdown note's title here"
+            body: "# Type your markdown note's title here",
+            createdAt: Date.now(),
+            updatedAt: Date.now()
         }
         const newNoteRef = await addDoc(notesCollection, newNote) // the onsnapshot will automatically update the state of note
         setCurrentNoteId(newNoteRef.id)
@@ -49,14 +60,15 @@ export default function App() {
     
     async function updateNote(text) {
         const docRef = doc(db, "notes", currentNoteId)
-        await setDoc(docRef, { body: text }, { merge: true })
+        await setDoc(docRef, { body: text , updatedAt: Date.now()}, { merge: true })
+         
     }
     
     function findCurrentNote() {
         return notes.find(note => {
             return note.id === currentNoteId
         }) || notes[0]
-        console.log("findCurrentNote called")
+        //console.log("findCurrentNote called")
     }
 
     async function deleteNote(event,noteId) {
@@ -77,6 +89,7 @@ export default function App() {
             >
                 <Sidebar
                     notes={notes}
+                   // sortedNotes={sortedNotes}
                     currentNote={currentNote}
                     setCurrentNoteId={setCurrentNoteId}
                     newNote={createNewNote}

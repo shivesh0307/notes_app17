@@ -1,7 +1,7 @@
 import React from "react"
 
 export default function Sidebar(props) {
-    console.log(props.notes);
+    //console.log(props.notes);
    
     const noteElements = props.notes.map((note, index) =>  {
        // console.log(JSON.stringify(note.body));
